@@ -86,7 +86,7 @@ Configuration KubernetesWorkerConf
         {
             Name = "kubernetes-node"
             DependsOn = "[cChocoInstaller]installChoco"
-            Version = "1.7.0"
+            Version = "1.5.7"
         }
     }
 }
