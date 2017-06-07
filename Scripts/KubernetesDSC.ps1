@@ -111,27 +111,3 @@ Configuration KubernetesWorkerConf
 
 KubernetesWorkerConf -HostName ([ipaddress] (Invoke-RestMethod http://169.254.169.254/latest/meta-data/local-ipv4))
 Start-DSCConfiguration '.\KubernetesWorkerConf' -Wait -Force
-
-
-
-<#
-
-    Import-DSCResource -ModuleName PSDesiredStateConfiguration
-    Import-DSCResource -ModuleName PackageManagementProviderResource
-
-    PSModule DockerMsftProvider
-    {
-        Ensure = $Ensure
-        Name = "DockerMsftProvider"
-        Repository = "PSGallery"
-        InstallationPolicy = "Untrusted"
-    }
-
-    Service docker
-    {
-        DependsOn = @("[PSModule]DockerMsftProvider")
-        Name = "docker"
-        Ensure = $Ensure
-        State = "Running"
-    }
-#>
