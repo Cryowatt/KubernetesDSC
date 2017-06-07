@@ -98,6 +98,14 @@ Configuration KubernetesWorkerConf
             Ensure = "Present"
             DependsOn = "[cChocoPackageInstaller]kubernetes-node"
         }
+
+        WindowsProcess kube-proxy
+        {
+            Arguments = "--kubeconfig C:\kubernetes\buildlab.ims.io\kubeconfig --hostname-override=$HostName --bind-address=$HostName --proxy-mode=userspace --v=3"
+            Path = [System.IO.Path]::Combine($chocoPath, "bin\kube-proxy.exe")   
+            Ensure = "Present"
+            DependsOn = "[cChocoPackageInstaller]kubernetes-node"
+        }
     }
 }
 
