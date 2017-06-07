@@ -3,7 +3,7 @@ param($Ensure = "Present")
 
 Configuration KubernetesWorkerConf
 {
-    param($Ensure = "Present")
+    param([ipaddress]$HostName, $Ensure = "Present")
 
     # Import the module that defines custom resources Import-DSCResource -ModuleName PSDesiredStateConfiguration
     Import-DSCResource -ModuleName PackageManagementProviderResource
@@ -12,6 +12,8 @@ Configuration KubernetesWorkerConf
     Import-DscResource –ModuleName xHyper-V
     Import-DSCResource -ModuleName KubernetesDSC
     Import-DSCResource -ModuleName cChoco
+
+    $chocoPath = "c:\ProgramData\chocolatey"
 
     Node Localhost
     {
@@ -79,7 +81,7 @@ Configuration KubernetesWorkerConf
 
         cChocoInstaller installChoco
         {
-            InstallDir = "c:\ProgramData\chocolatey"            
+            InstallDir =  $chocoPath          
         }
 
         cChocoPackageInstaller kubernetes-node
@@ -88,10 +90,18 @@ Configuration KubernetesWorkerConf
             DependsOn = "[cChocoInstaller]installChoco"
             Version = "1.5.7"
         }
+
+        WindowsProcess kubelet
+        {
+            Arguments = "--kubeconfig C:\kubernetes\buildlab.ims.io\kubeconfig --require-kubeconfig --pod-infra-container-image='apprenda/pause' --hostname-override=$HostName"
+            Path = [System.IO.Path]::Combine($chocoPath, "bin\kubelet.exe")   
+            Ensure = "Present"
+            DependsOn = "[cChocoPackageInstaller]kubernetes-node"
+        }
     }
 }
 
-KubernetesWorkerConf
+KubernetesWorkerConf -HostName ([ipaddress] (Invoke-RestMethod http://169.254.169.254/latest/meta-data/local-ipv4))
 Start-DSCConfiguration '.\KubernetesWorkerConf' -Wait -Force
 
 
