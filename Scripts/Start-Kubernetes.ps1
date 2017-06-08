@@ -1,5 +1,6 @@
 ﻿#Requires -Version 5
-param()
+[cmdletbinding()]
+param([string]$KubeConfig)
 
 Configuration KubernetesWorkerConf
 {
@@ -44,7 +45,7 @@ Configuration KubernetesWorkerConf
         File kubeconfig
         {
             DestinationPath = $kubeConfigPath
-            Contents = "HelloWorld"
+            Contents = $KubeConfig
         }
 
         WindowsProcess kubelet
