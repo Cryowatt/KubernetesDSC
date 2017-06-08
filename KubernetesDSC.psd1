@@ -12,7 +12,7 @@
 RootModule = '.\DockerImage.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.1'
+ModuleVersion = '0.0.2'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -48,10 +48,10 @@ PowerShellVersion = '5.0'
 # CLRVersion = ''
 
 # Processor architecture (None, X86, Amd64) required by this module
-# ProcessorArchitecture = ''
+ProcessorArchitecture = 'Amd64'
 
 # Modules that must be imported into the global environment prior to importing this module
-RequiredModules = @('PackageManagementProviderResource'; 'xPSDesiredStateConfiguration'; 'cChoco'; 'Pscx'; 'xHyper-V'; 'Docker')
+RequiredModules = @('cChoco'; 'Pscx'; 'Docker'; 'DockerMsftProvider')
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()

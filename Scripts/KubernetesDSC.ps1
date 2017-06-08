@@ -1,64 +1,20 @@
 ﻿#Requires -Version 5
-param($Ensure = "Present")
+param()
 
 Configuration KubernetesWorkerConf
 {
-    param([ipaddress]$HostName, $Ensure = "Present")
+    param([ipaddress]$HostName)
 
-    # Import the module that defines custom resources Import-DSCResource -ModuleName PSDesiredStateConfiguration
-    Import-DSCResource -ModuleName PackageManagementProviderResource
-    Import-DscResource –ModuleName PSDesiredStateConfiguration
-    Import-DscResource –ModuleName xPSDesiredStateConfiguration
-    Import-DscResource –ModuleName xHyper-V
     Import-DSCResource -ModuleName KubernetesDSC
     Import-DSCResource -ModuleName cChoco
 
     $chocoPath = "c:\ProgramData\chocolatey"
+    $kubeConfigPath = "C:\kube\kubeconfig"
 
     Node Localhost
     {
-        PackageManagementSource PSGallery
-        {
-            Name = "PSGallery"
-            ProviderName = "PowerShellGet"
-            InstallationPolicy = "Trusted"
-            SourceUri = "https://www.powershellgallery.com/api/v2/"
-        }
-
-        PSModule DockerMsftProvider
-        {
-            DependsOn = @("[PackageManagementSource]PSGallery")
-            Name = "DockerMsftProvider"
-            Repository = "PSGallery"
-            InstallationPolicy = "Trusted"
-        }
-
-        PackageManagementSource DockerPS
-        {
-            Name = "DockerPS-Dev"
-            ProviderName = "PowerShellGet"
-            InstallationPolicy = "Trusted"
-            SourceUri = "https://ci.appveyor.com/nuget/docker-powershell-dev"
-        }
-
-        PSModule DockerPS
-        {
-            DependsOn = @("[PackageManagementSource]DockerPS")
-            Name = "Docker"
-            Repository = "DockerPS-Dev"
-            InstallationPolicy = "Trusted"
-        }
-
-        PackageManagement docker
-        {
-            DependsOn = @("[PSModule]DockerMsftProvider")
-            Name = "docker"
-            ProviderName = "DockerMsftProvider"
-        }
-
         Service docker
         {
-            DependsOn = @("[PackageManagement]docker")
             Name = "docker"
             State = "Running"
         }
@@ -66,12 +22,6 @@ Configuration KubernetesWorkerConf
         WindowsFeature Routing
         {
             Name = "Routing"
-        }
-
-        xVMSwitch KubeProxySwitch
-        {
-            Name = "KubeProxySwitch"
-            Type = "Internal"
         }
 
         DockerImage Pause
@@ -91,20 +41,24 @@ Configuration KubernetesWorkerConf
             Version = "1.5.7"
         }
 
+        File kubeconfig
+        {
+            DestinationPath = $kubeConfigPath
+            Contents = "HelloWorld"
+        }
+
         WindowsProcess kubelet
         {
-            Arguments = "--kubeconfig C:\kubernetes\buildlab.ims.io\kubeconfig --require-kubeconfig --pod-infra-container-image='apprenda/pause' --hostname-override=$HostName"
+            Arguments = "--kubeconfig $kubeConfigPath --require-kubeconfig --pod-infra-container-image='apprenda/pause' --hostname-override=$HostName"
             Path = [System.IO.Path]::Combine($chocoPath, "bin\kubelet.exe")   
-            Ensure = "Present"
-            DependsOn = "[cChocoPackageInstaller]kubernetes-node"
+            DependsOn = "[cChocoPackageInstaller]kubernetes-node", "[File]kubeconfig"
         }
 
         WindowsProcess kube-proxy
         {
-            Arguments = "--kubeconfig C:\kubernetes\buildlab.ims.io\kubeconfig --hostname-override=$HostName --bind-address=$HostName --proxy-mode=userspace --v=3"
+            Arguments = "--kubeconfig $kubeConfigPath --hostname-override=$HostName --bind-address=$HostName --proxy-mode=userspace --v=3"
             Path = [System.IO.Path]::Combine($chocoPath, "bin\kube-proxy.exe")   
-            Ensure = "Present"
-            DependsOn = "[cChocoPackageInstaller]kubernetes-node"
+            DependsOn = "[cChocoPackageInstaller]kubernetes-node", "[File]kubeconfig"
         }
     }
 }
