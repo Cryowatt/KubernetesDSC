@@ -9,7 +9,7 @@
 @{
 
 # Script module or binary module file associated with this manifest.
-#RootModule = '.\KubernetesDSC.psm1'
+RootModule = '.\KubernetesDSC.psm1'
 
 # Version number of this module.
 ModuleVersion = '0.0.10'
@@ -67,9 +67,9 @@ RequiredModules = @('cChoco'; 'Docker'; 'DockerMsftProvider')
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 NestedModules = @(
-    'KubernetesDSC.psm1',
-    'DSCResources\DockerImage\DockerImage.psd1',
-    'DSCResources\KubernetesNode\KubernetesNode.psd1')
+    'DockerImage.psm1',
+    'DSCResources\KubernetesNode\KubernetesNode.psd1'
+)
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 # FunctionsToExport = @()
@@ -84,7 +84,7 @@ NestedModules = @(
 AliasesToExport = @()
 
 # DSC resources to export from this module
-DscResourcesToExport = 'DockerImage', 'KubernetesNode'
+DscResourcesToExport = 'DockerImage'
 
 # List of all modules packaged with this module
 # ModuleList = 'DockerImage', 'KubernetesNode'
