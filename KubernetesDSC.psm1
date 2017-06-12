@@ -38,7 +38,7 @@
  Initiates a Kubernetes DSC configuration
 
 #>
-
+<#
 [cmdletbinding()]
 param([string]$KubeConfig)
 
@@ -105,4 +105,4 @@ Configuration KubernetesWorkerConf
 }
 
 KubernetesWorkerConf -HostName ([ipaddress] (Invoke-RestMethod http://169.254.169.254/latest/meta-data/local-ipv4))
-Start-DSCConfiguration '.\KubernetesWorkerConf' -Wait -Force
+Start-DSCConfiguration '.\KubernetesWorkerConf' -Wait -Force#>

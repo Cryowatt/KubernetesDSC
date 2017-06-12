@@ -9,10 +9,10 @@
 @{
 
 # Script module or binary module file associated with this manifest.
-RootModule = '.\DockerImage.psm1'
+RootModule = '.\KubernetesDSC.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.8'
+ModuleVersion = '0.0.9'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
