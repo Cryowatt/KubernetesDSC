@@ -1,4 +1,44 @@
-﻿#Requires -Version 5
+﻿
+<#PSScriptInfo
+
+.VERSION 0.0.3
+
+.GUID 0dc9be5e-07da-4c07-a4e1-341038c2e1ba
+
+.AUTHOR Eric Carter
+
+.COMPANYNAME
+
+.COPYRIGHT
+
+.TAGS
+
+.LICENSEURI
+
+.PROJECTURI
+
+.ICONURI
+
+.EXTERNALMODULEDEPENDENCIES
+
+.REQUIREDSCRIPTS
+
+.EXTERNALSCRIPTDEPENDENCIES
+
+.RELEASENOTES
+
+
+#>
+
+#Requires -Module cChoco
+
+<#
+
+.DESCRIPTION
+ Initiates a Kubernetes DSC configuration
+
+#>
+
 [cmdletbinding()]
 param([string]$KubeConfig)
 
@@ -32,7 +72,7 @@ Configuration KubernetesWorkerConf
 
         cChocoInstaller installChoco
         {
-            InstallDir =  $chocoPath          
+            InstallDir =  $chocoPath
         }
 
         cChocoPackageInstaller kubernetes-node
