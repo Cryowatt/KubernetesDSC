@@ -1,14 +1,22 @@
 ﻿Configuration KubernetesNode
 {
     param(
-        [ipaddress]$HostName,
-        [string]$KubeConfig
+        [string]$HostName,
+        [ipaddress]$BindAddress,
+        [string]$KubeConfig,
+        [hashtable]$NodeLabels,
+        [string]$CloudProvider
     )
 
     Import-DSCResource -ModuleName cChoco
 
     $chocoPath = "c:\ProgramData\chocolatey"
     $kubeConfigPath = "C:\kube\kubeconfig"
+    $cloudProviderParam = "--cloud-provider=$CloudProvider"
+
+    if($NodeLabels.Count > 0) {
+        $nodeLabelsParam = '--node-labels=' + ($NodeLabels.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)"} ) -join ","
+    }
 
     Service docker
     {
@@ -52,16 +60,16 @@
     WindowsProcess kubelet
     {
         Ensure = "Present"
-        Arguments = "--kubeconfig $kubeConfigPath --require-kubeconfig --pod-infra-container-image='apprenda/pause' --hostname-override=$HostName"
-        Path = [System.IO.Path]::Combine($chocoPath, "bin\kubelet.exe")   
+        Arguments = "--kubeconfig $kubeConfigPath --require-kubeconfig --pod-infra-container-image='apprenda/pause' --hostname-override=$HostName $nodeLabelsParam $cloudProviderParam"
+        Path = [System.IO.Path]::Combine($chocoPath, "bin\kubelet.exe")
         DependsOn = "[cChocoPackageInstaller]kubernetes-node", "[File]kubeconfig"
     }
 
     WindowsProcess kube-proxy
     {
         Ensure = "Present"
-        Arguments = "--kubeconfig $kubeConfigPath --hostname-override=$HostName --bind-address=$HostName --proxy-mode=userspace --v=3"
-        Path = [System.IO.Path]::Combine($chocoPath, "bin\kube-proxy.exe")   
+        Arguments = "--kubeconfig $kubeConfigPath --hostname-override=$HostName --bind-address=$BindAddress --proxy-mode=userspace --v=3"
+        Path = [System.IO.Path]::Combine($chocoPath, "bin\kube-proxy.exe")
         DependsOn = "[cChocoPackageInstaller]kubernetes-node", "[File]kubeconfig"
     }
 }
