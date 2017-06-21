@@ -5,7 +5,8 @@
         [ipaddress]$BindAddress,
         [string]$KubeConfig,
         [hashtable]$NodeLabels,
-        [string]$CloudProvider
+        [string]$CloudProvider,
+        [string]$KubernetesVersion
     )
 
     Import-DSCResource -ModuleName cChoco
@@ -47,7 +48,7 @@
         Ensure = "Present"
         Name = "kubernetes-node"
         DependsOn = "[cChocoInstaller]installChoco"
-        Version = "1.5.7"
+        Version = $KubernetesVersion
     }
 
     File kubeconfig
@@ -60,7 +61,7 @@
     WindowsProcess kubelet
     {
         Ensure = "Present"
-        Arguments = "--kubeconfig $kubeConfigPath --require-kubeconfig --pod-infra-container-image='apprenda/pause' --hostname-override=$HostName $nodeLabelsParam $cloudProviderParam"
+        Arguments = "--kubeconfig $kubeConfigPath --register-node=true --require-kubeconfig --pod-infra-container-image=apprenda/pause --resolv-conf='' --hostname-override=$HostName $nodeLabelsParam $cloudProviderParam"
         Path = [System.IO.Path]::Combine($chocoPath, "bin\kubelet.exe")
         DependsOn = "[cChocoPackageInstaller]kubernetes-node", "[File]kubeconfig"
     }
